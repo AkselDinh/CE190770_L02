@@ -3,8 +3,9 @@ package ce190770_l02;
 import java.util.Scanner;
 
 /**
- * S09 - Program to remove unnecessary blank in a string This class contains
- * method and utilities for input validating
+ * L02 - Student Management System
+ *
+ * This class contains method and utilities for input validating
  *
  * @author Dinh Cong Phuc - CE190770 - Mar 4, 2025
  */
@@ -224,7 +225,7 @@ public class InputValidation {
             // Keep prompting until input contains only letters and spaces
             while (!in.matches("[a-zA-Z ]+")) {
                 // Print error if input is not valid
-                throw new Exception("Please do not include number.");
+                throw new Exception("Please only enter letters.");
             }
         } catch (Exception e) {
             // Print error message if exception occurs
@@ -239,7 +240,7 @@ public class InputValidation {
      *
      * @return boolean indicating whether to continue or not
      */
-    public static boolean continueYN(String message) throws Exception{
+    public static boolean continueYN(String message) throws Exception {
         // Infinite loop until valid input received
         while (true) {
             // Start of try block for exception handling
@@ -257,11 +258,11 @@ public class InputValidation {
                     return false;
                 }
                 // Prompts for valid input
-                throw new Exception("Please enter 'Y' to proceed or 'N' to reject.");
+                System.err.println("Please enter 'Y' to proceed or 'N' to reject.");
                 // Catches any exceptions
             } catch (Exception ex) {
                 // Prints the exception message
-                throw new Exception(ex.getMessage());
+                System.err.println(ex.getMessage());
             }
         }
     }

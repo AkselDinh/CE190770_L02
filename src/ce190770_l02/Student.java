@@ -5,40 +5,40 @@
  */
 package ce190770_l02;
 
+import java.util.*;
+
 /**
+ * L02 - Student Management System
+ *
  * Student class represents a student entity in the student management system.
  * This class contains basic information about a student including their ID,
- * name, semester, and enrolled courses.
+ * name, and a map of semesters to courses.
  *
- * @author PD
+ * @author Dinh Cong Phuc - CE190770 - Mar 7, 2025
  */
 public class Student {
+
     // Student's unique identifier (e.g., CE123456)
     private String id;
     // Student's full name
     private String name;
-    // Student's current semester (e.g., SP25, FA24)
-    private String semester;
-    // Student's enrolled course
-    private String courses;
+    // Map to store semesters and their associated courses
+    // Key: semester (e.g., "SP25"), Value: Set of courses for that semester
+    private final Map<String, Set<String>> semesterCourses;
 
     /**
      * Constructor to create a new Student object with all required fields
      *
      * @param id The student's unique identifier
      * @param name The student's full name
-     * @param semester The student's current semester
-     * @param courses The student's enrolled course
      */
-    public Student(String id, String name, String semester, String courses) {
+    public Student(String id, String name) {
         // Initialize the student ID
         this.id = id;
         // Initialize the student name
         this.name = name;
-        // Initialize the student's semester
-        this.semester = semester;
-        // Initialize the student's course
-        this.courses = courses;
+        // Initialize the semester-courses map
+        this.semesterCourses = new HashMap<>();
     }
 
     /**
@@ -82,42 +82,79 @@ public class Student {
     }
 
     /**
-     * Gets the student's semester
+     * Gets all semesters for the student
      *
-     * @return The student's semester as a String
+     * @return Set of all semesters
      */
-    public String getSemester() {
-        // Return the student's semester
-        return semester;
+    public Set<String> getSemesters() {
+        // Return set of all semesters
+        return new HashSet<>(semesterCourses.keySet());
     }
 
     /**
-     * Sets the student's semester
+     * Gets courses for a specific semester
      *
-     * @param semester The new semester to set
+     * @param semester The semester to get courses for
+     * @return Set of courses for the semester, or empty set if semester not found
      */
-    public void setSemester(String semester) {
-        // Update the student's semester
-        this.semester = semester;
+    public Set<String> getCourses(String semester) {
+        // Return courses for the semester, or empty set if semester doesn't exist
+        return semesterCourses.getOrDefault(semester, new HashSet<>());
     }
 
     /**
-     * Gets the student's enrolled course
+     * Gets all semester-courses mappings
      *
-     * @return The student's course as a String
+     * @return Map of all semester-courses mappings
      */
-    public String getCourse() {
-        // Return the student's course
-        return courses;
+    public Map<String, Set<String>> getAllSemesterCourses() {
+        // Return the entire semester-courses map
+        return semesterCourses;
     }
 
     /**
-     * Sets the student's enrolled course
+     * Adds a course to a semester
      *
-     * @param courses The new course to set
+     * @param semester The semester to add the course to
+     * @param course The course to add
+     * @return true if course was added, false if it was already present
      */
-    public void setCourse(String courses) {
-        // Update the student's course
-        this.courses = courses;
+    public boolean addCourse(String semester, String course) {
+        // Get or create course set for the semester
+        Set<String> courses = semesterCourses.computeIfAbsent(semester, k -> new HashSet<>());
+        // Add the course and return whether it was added
+        return courses.add(course);
+    }
+
+    /**
+     * Removes a course from a semester
+     *
+     * @param semester The semester to remove the course from
+     * @param course The course to remove
+     * @return true if course was removed, false if it wasn't found
+     */
+    public boolean removeCourse(String semester, String course) {
+        // Get courses for the semester
+        Set<String> courses = semesterCourses.get(semester);
+        // If semester exists and course is removed, return true
+        if (courses != null && courses.remove(course)) {
+            // If semester has no more courses, remove the semester
+            if (courses.isEmpty()) {
+                semesterCourses.remove(semester);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Removes an entire semester and all its courses
+     *
+     * @param semester The semester to remove
+     * @return true if semester was removed, false if it wasn't found
+     */
+    public boolean removeSemester(String semester) {
+        // Remove semester and return whether it existed
+        return semesterCourses.remove(semester) != null;
     }
 }

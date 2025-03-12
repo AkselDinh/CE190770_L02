@@ -11,13 +11,17 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * StudentDTB (Student Database) class manages the collection of student records.
- * This class provides functionality for adding, finding, updating, deleting,
- * and sorting student records. It also maintains valid courses and semesters.
+ * L02 - Student Management System
  *
- * @author PD
+ * StudentDTB (Student Database) class manages the collection of student
+ * records. This class provides functionality for adding, finding, updating,
+ * deleting, and sorting student records. It also maintains valid courses and
+ * semesters.
+ *
+ * @author Dinh Cong Phuc - CE190770 - Mar 7, 2025
  */
 public class StudentDTB {
+
     // List to store all student records
     private ArrayList<Student> studentdtb = new ArrayList<>();
     // Set of valid courses that can be assigned to students
@@ -52,13 +56,14 @@ public class StudentDTB {
      * Finds students based on a search input and specified criteria
      *
      * @param input The search term to look for
-     * @param sortType The type of attribute to search by (ID, Name, Semester, Course)
+     * @param sortType The type of attribute to search by (ID, Name, Semester,
+     * Course)
      * @return List of students matching the search criteria
      */
     public List<Student> findBy(String input, SortType sortType) {
         // Create list to store matching students
         List<Student> res = new ArrayList<>();
-        
+
         // Switch based on search criteria
         switch (sortType) {
             case BY_ID:
@@ -84,8 +89,9 @@ public class StudentDTB {
             case BY_SEMESTER:
                 // Search by semester
                 for (Student student : studentdtb) {
-                    // If input matches any student in database, add student to result
-                    if (matchesInput(student.getSemester(), input)) {
+                    // Check if any of student's semesters match the input
+                    if (student.getSemesters().stream()
+                            .anyMatch(sem -> matchesInput(sem, input))) {
                         res.add(student);
                     }
                 }
@@ -94,8 +100,11 @@ public class StudentDTB {
             case BY_COURSE:
                 // Search by course
                 for (Student student : studentdtb) {
-                    // If input matches any student in database, add student to result
-                    if (matchesInput(student.getCourse(), input)) {
+                    // Check all semesters for matching courses
+                    boolean hasMatchingCourse = student.getSemesters().stream()
+                            .anyMatch(semester -> student.getCourses(semester).stream()
+                            .anyMatch(course -> matchesInput(course, input)));
+                    if (hasMatchingCourse) {
                         res.add(student);
                     }
                 }
@@ -108,15 +117,17 @@ public class StudentDTB {
      * Deletes a student from the database by their ID
      *
      * @param id The ID of the student to delete
+     * @return true if delete successfully, else return false
      */
-    public void deleteStudent(String id) {
+    public boolean deleteStudent(String id) {
         // Iterate through the database to find and remove the student
         for (Student student : studentdtb) {
             // If input matches any student in database, remove student from database
             if (matchesInput(student.getId(), id)) {
-                studentdtb.remove(student);
+                return studentdtb.remove(student);
             }
         }
+        return false;
     }
 
     /**
@@ -174,8 +185,8 @@ public class StudentDTB {
      * Enumeration of sort types for student records
      */
     public enum SortType {
-        BY_ID,      // Sort by student ID
-        BY_NAME,    // Sort by student name
+        BY_ID, // Sort by student ID
+        BY_NAME, // Sort by student name
         BY_SEMESTER,// Sort by semester
         BY_COURSE   // Sort by course
     }
@@ -217,7 +228,8 @@ public class StudentDTB {
     }
 
     /**
-     * Merges two sorted arrays into one sorted array based on the specified criteria
+     * Merges two sorted arrays into one sorted array based on the specified
+     * criteria
      *
      * @param leftArray The left sub-array
      * @param rightArray The right sub-array
@@ -257,14 +269,91 @@ public class StudentDTB {
                     shouldTakeLeft = leftName.compareTo(rightName) <= 0;
                     break;
                 case BY_SEMESTER:
-                    // Compare semesters lexicographically
-                    // shouldTakeLeft will be true if leftStudent's semester comes before or equals rightStudent's semester
-                    shouldTakeLeft = leftStudent.getSemester().compareTo(rightStudent.getSemester()) <= 0;
+                    // Get earliest semester from each student (or empty string if no semesters)
+                    String leftSem = leftStudent.getSemesters().stream()
+                            .min((s1, s2) -> {
+                                // Compare years first
+                                int year1 = Integer.parseInt(s1.substring(2));
+                                int year2 = Integer.parseInt(s2.substring(2));
+                                if (year1 != year2) {
+                                    return year1 - year2;
+                                }
+                                // If years are equal, compare seasons (SP < SU < FA)
+                                String season1 = s1.substring(0, 2);
+                                String season2 = s2.substring(0, 2);
+                                // Define season order: SP=1, SU=2, FA=3
+                                int seasonOrder1 = getSeasonOrder(season1);
+                                int seasonOrder2 = getSeasonOrder(season2);
+                                return seasonOrder1 - seasonOrder2;
+                            }).orElse("");
+                    String rightSem = rightStudent.getSemesters().stream()
+                            .min((s1, s2) -> {
+                                // Compare years first
+                                int year1 = Integer.parseInt(s1.substring(2));
+                                int year2 = Integer.parseInt(s2.substring(2));
+                                if (year1 != year2) {
+                                    return year1 - year2;
+                                }
+                                // If years are equal, compare seasons (SP < SU < FA)
+                                String season1 = s1.substring(0, 2);
+                                String season2 = s2.substring(0, 2);
+                                // Define season order: SP=1, SU=2, FA=3
+                                int seasonOrder1 = getSeasonOrder(season1);
+                                int seasonOrder2 = getSeasonOrder(season2);
+                                return seasonOrder1 - seasonOrder2;
+                            }).orElse("");
+
+                    // Compare semesters using the same logic
+                    if (!leftSem.isEmpty() && !rightSem.isEmpty()) {
+                        // Extract the year portion (last 2 digits) from each semester string
+                        int leftYear = Integer.parseInt(leftSem.substring(2));
+                        // Extract the year portion (last 2 digits) from each semester string
+                        int rightYear = Integer.parseInt(rightSem.substring(2));
+                        
+                        // Check if years are different
+                        if (leftYear != rightYear) {
+                            // If years are different, sort by year in ascending order
+                            // shouldTakeLeft = true if leftYear is earlier or equal to rightYear
+                            // This ensures earlier years come first in the sorted result
+                            shouldTakeLeft = leftYear <= rightYear;
+                        } else {
+                            // If years are the same, compare by season (SP, SU, FA)
+                            // Extract the season code (first 2 characters) from each semester
+                            int leftSeasonOrder = getSeasonOrder(leftSem.substring(0, 2));
+                            // Extract the season code (first 2 characters) from each semester
+                            int rightSeasonOrder = getSeasonOrder(rightSem.substring(0, 2));
+                            
+                            // Sort by season in chronological order (Spring → Summer → Fall)
+                            // shouldTakeLeft = true if leftSeason comes before or equals rightSeason
+                            // This ensures semesters within the same year appear in proper sequence
+                            shouldTakeLeft = leftSeasonOrder <= rightSeasonOrder;
+                        }
+                    } else {
+                        // Handle case where one or both semesters are empty
+                        // Empty semesters should be placed last in sorting order
+                        // shouldTakeLeft = true if leftSem exists OR both are empty
+                        // shouldTakeLeft = false if only rightSem exists
+                        shouldTakeLeft = !leftSem.isEmpty() || rightSem.isEmpty();
+                    }
                     break;
                 case BY_COURSE:
-                    // Compare courses lexicographically
-                    // shouldTakeLeft will be true if leftStudent's course comes before or equals rightStudent's course
-                    shouldTakeLeft = leftStudent.getCourse().compareTo(rightStudent.getCourse()) <= 0;
+                    // Get all courses from all semesters for each student
+                    Set<String> leftCourses = new HashSet<>();
+                    Set<String> rightCourses = new HashSet<>();
+
+                    // Collect all unique courses for left student
+                    leftStudent.getSemesters().forEach(sem
+                            -> leftCourses.addAll(leftStudent.getCourses(sem)));
+
+                    // Collect all unique courses for right student
+                    rightStudent.getSemesters().forEach(sem
+                            -> rightCourses.addAll(rightStudent.getCourses(sem)));
+
+                    // Get earliest course from each student (or empty string if no courses)
+                    String leftCourse = leftCourses.stream().min(String::compareTo).orElse("");
+                    String rightCourse = rightCourses.stream().min(String::compareTo).orElse("");
+                    // Compare earliest courses lexicographically
+                    shouldTakeLeft = leftCourse.compareTo(rightCourse) <= 0;
                     break;
             }
 
@@ -285,19 +374,19 @@ public class StudentDTB {
         // Copy remaining elements from left array if any
         while (l < leftSize) {
             array.set(i, leftArray.get(l));
-                // Increase index i of merged array
-                i++;
-                // Increase index l of left array
-                l++;
+            // Increase index i of merged array
+            i++;
+            // Increase index l of left array
+            l++;
         }
 
         // Copy remaining elements from right array if any
         while (r < rightSize) {
             array.set(i, rightArray.get(r));
-                 // Increase index i of merged array
-                i++;
-                // Increase index r of right array
-                r++;
+            // Increase index i of merged array
+            i++;
+            // Increase index r of right array
+            r++;
         }
     }
 
@@ -314,7 +403,7 @@ public class StudentDTB {
         if (length <= 1) {
             return;
         }
-        
+
         // Calculate middle point
         int middle = length / 2;
         // Create left and right subarrays
@@ -326,5 +415,31 @@ public class StudentDTB {
         mergeSort(rightArray, sortType);
         // Merge the sorted halves
         merge(leftArray, rightArray, array, sortType);
+    }
+
+    /**
+     * Helper method to get the numerical order of a season
+     * Converts season codes (SP, SU, FA) to numerical values for comparison
+     * 
+     * @param season The season code (SP, SU, or FA)
+     * @return The numerical order of the season (1 for Spring, 2 for Summer, 3 for Fall, 4 for invalid)
+     */
+    private int getSeasonOrder(String season) {
+        // Use switch statement to convert season code to numerical value
+        switch (season) {
+            case "SP":
+                // Spring semester (typically January-May) comes first in academic year
+                return 1;
+            case "SU":
+                // Summer semester (typically May-August) comes second in academic year
+                return 2;
+            case "FA":
+                // Fall semester (typically August-December) comes third in academic year
+                return 3;
+            default:
+                // Return a high value for any invalid season codes to place them at the end
+                // This handles unexpected data gracefully
+                return 4;
+        }
     }
 }

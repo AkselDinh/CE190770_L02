@@ -3,21 +3,22 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package ce190770_l02;
 
 /**
- * Main class for the Student Management System.
- * This class serves as the entry point for the application and initializes
- * the menu-driven interface for managing student records.
+ * L02 - Student Management System
+ *
+ * Main class for the Student Management System. This class serves as the entry
+ * point for the application and initializes the menu-driven interface for
+ * managing student records.
  *
  * @author Dinh Cong Phuc - CE190770 - Mar 7, 2025
  */
 public class CE190770_L02 {
 
     /**
-     * The main method that starts the application.
-     * Creates a new Menu instance and starts the main program loop.
+     * The main method that starts the application. Creates a new Menu instance
+     * and starts the main program loop.
      *
      * @param args Command line arguments (not used)
      */

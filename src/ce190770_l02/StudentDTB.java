@@ -268,93 +268,94 @@ public class StudentDTB {
                     // shouldTakeLeft will be true if leftStudent's name comes before or equals rightStudent's name
                     shouldTakeLeft = leftName.compareTo(rightName) <= 0;
                     break;
-                case BY_SEMESTER:
-                    // Get earliest semester from each student (or empty string if no semesters)
-                    String leftSem = leftStudent.getSemesters().stream()
-                            .min((s1, s2) -> {
-                                // Compare years first
-                                int year1 = Integer.parseInt(s1.substring(2));
-                                int year2 = Integer.parseInt(s2.substring(2));
-                                if (year1 != year2) {
-                                    return year1 - year2;
-                                }
-                                // If years are equal, compare seasons (SP < SU < FA)
-                                String season1 = s1.substring(0, 2);
-                                String season2 = s2.substring(0, 2);
-                                // Define season order: SP=1, SU=2, FA=3
-                                int seasonOrder1 = getSeasonOrder(season1);
-                                int seasonOrder2 = getSeasonOrder(season2);
-                                return seasonOrder1 - seasonOrder2;
-                            }).orElse("");
-                    String rightSem = rightStudent.getSemesters().stream()
-                            .min((s1, s2) -> {
-                                // Compare years first
-                                int year1 = Integer.parseInt(s1.substring(2));
-                                int year2 = Integer.parseInt(s2.substring(2));
-                                if (year1 != year2) {
-                                    return year1 - year2;
-                                }
-                                // If years are equal, compare seasons (SP < SU < FA)
-                                String season1 = s1.substring(0, 2);
-                                String season2 = s2.substring(0, 2);
-                                // Define season order: SP=1, SU=2, FA=3
-                                int seasonOrder1 = getSeasonOrder(season1);
-                                int seasonOrder2 = getSeasonOrder(season2);
-                                return seasonOrder1 - seasonOrder2;
-                            }).orElse("");
-
-                    // Compare semesters using the same logic
-                    if (!leftSem.isEmpty() && !rightSem.isEmpty()) {
-                        // Extract the year portion (last 2 digits) from each semester string
-                        int leftYear = Integer.parseInt(leftSem.substring(2));
-                        // Extract the year portion (last 2 digits) from each semester string
-                        int rightYear = Integer.parseInt(rightSem.substring(2));
-                        
-                        // Check if years are different
-                        if (leftYear != rightYear) {
-                            // If years are different, sort by year in ascending order
-                            // shouldTakeLeft = true if leftYear is earlier or equal to rightYear
-                            // This ensures earlier years come first in the sorted result
-                            shouldTakeLeft = leftYear <= rightYear;
-                        } else {
-                            // If years are the same, compare by season (SP, SU, FA)
-                            // Extract the season code (first 2 characters) from each semester
-                            int leftSeasonOrder = getSeasonOrder(leftSem.substring(0, 2));
-                            // Extract the season code (first 2 characters) from each semester
-                            int rightSeasonOrder = getSeasonOrder(rightSem.substring(0, 2));
-                            
-                            // Sort by season in chronological order (Spring → Summer → Fall)
-                            // shouldTakeLeft = true if leftSeason comes before or equals rightSeason
-                            // This ensures semesters within the same year appear in proper sequence
-                            shouldTakeLeft = leftSeasonOrder <= rightSeasonOrder;
-                        }
-                    } else {
-                        // Handle case where one or both semesters are empty
-                        // Empty semesters should be placed last in sorting order
-                        // shouldTakeLeft = true if leftSem exists OR both are empty
-                        // shouldTakeLeft = false if only rightSem exists
-                        shouldTakeLeft = !leftSem.isEmpty() || rightSem.isEmpty();
-                    }
-                    break;
-                case BY_COURSE:
-                    // Get all courses from all semesters for each student
-                    Set<String> leftCourses = new HashSet<>();
-                    Set<String> rightCourses = new HashSet<>();
-
-                    // Collect all unique courses for left student
-                    leftStudent.getSemesters().forEach(sem
-                            -> leftCourses.addAll(leftStudent.getCourses(sem)));
-
-                    // Collect all unique courses for right student
-                    rightStudent.getSemesters().forEach(sem
-                            -> rightCourses.addAll(rightStudent.getCourses(sem)));
-
-                    // Get earliest course from each student (or empty string if no courses)
-                    String leftCourse = leftCourses.stream().min(String::compareTo).orElse("");
-                    String rightCourse = rightCourses.stream().min(String::compareTo).orElse("");
-                    // Compare earliest courses lexicographically
-                    shouldTakeLeft = leftCourse.compareTo(rightCourse) <= 0;
-                    break;
+                    
+//                case BY_SEMESTER:
+//                    // Get earliest semester from each student (or empty string if no semesters)
+//                    String leftSem = leftStudent.getSemesters().stream()
+//                            .min((s1, s2) -> {
+//                                // Compare years first
+//                                int year1 = Integer.parseInt(s1.substring(2));
+//                                int year2 = Integer.parseInt(s2.substring(2));
+//                                if (year1 != year2) {
+//                                    return year1 - year2;
+//                                }
+//                                // If years are equal, compare seasons (SP < SU < FA)
+//                                String season1 = s1.substring(0, 2);
+//                                String season2 = s2.substring(0, 2);
+//                                // Define season order: SP=1, SU=2, FA=3
+//                                int seasonOrder1 = getSeasonOrder(season1);
+//                                int seasonOrder2 = getSeasonOrder(season2);
+//                                return seasonOrder1 - seasonOrder2;
+//                            }).orElse("");
+//                    String rightSem = rightStudent.getSemesters().stream()
+//                            .min((s1, s2) -> {
+//                                // Compare years first
+//                                int year1 = Integer.parseInt(s1.substring(2));
+//                                int year2 = Integer.parseInt(s2.substring(2));
+//                                if (year1 != year2) {
+//                                    return year1 - year2;
+//                                }
+//                                // If years are equal, compare seasons (SP < SU < FA)
+//                                String season1 = s1.substring(0, 2);
+//                                String season2 = s2.substring(0, 2);
+//                                // Define season order: SP=1, SU=2, FA=3
+//                                int seasonOrder1 = getSeasonOrder(season1);
+//                                int seasonOrder2 = getSeasonOrder(season2);
+//                                return seasonOrder1 - seasonOrder2;
+//                            }).orElse("");
+//
+//                    // Compare semesters using the same logic
+//                    if (!leftSem.isEmpty() && !rightSem.isEmpty()) {
+//                        // Extract the year portion (last 2 digits) from each semester string
+//                        int leftYear = Integer.parseInt(leftSem.substring(2));
+//                        // Extract the year portion (last 2 digits) from each semester string
+//                        int rightYear = Integer.parseInt(rightSem.substring(2));
+//                        
+//                        // Check if years are different
+//                        if (leftYear != rightYear) {
+//                            // If years are different, sort by year in ascending order
+//                            // shouldTakeLeft = true if leftYear is earlier or equal to rightYear
+//                            // This ensures earlier years come first in the sorted result
+//                            shouldTakeLeft = leftYear <= rightYear;
+//                        } else {
+//                            // If years are the same, compare by season (SP, SU, FA)
+//                            // Extract the season code (first 2 characters) from each semester
+//                            int leftSeasonOrder = getSeasonOrder(leftSem.substring(0, 2));
+//                            // Extract the season code (first 2 characters) from each semester
+//                            int rightSeasonOrder = getSeasonOrder(rightSem.substring(0, 2));
+//                            
+//                            // Sort by season in chronological order (Spring → Summer → Fall)
+//                            // shouldTakeLeft = true if leftSeason comes before or equals rightSeason
+//                            // This ensures semesters within the same year appear in proper sequence
+//                            shouldTakeLeft = leftSeasonOrder <= rightSeasonOrder;
+//                        }
+//                    } else {
+//                        // Handle case where one or both semesters are empty
+//                        // Empty semesters should be placed last in sorting order
+//                        // shouldTakeLeft = true if leftSem exists OR both are empty
+//                        // shouldTakeLeft = false if only rightSem exists
+//                        shouldTakeLeft = !leftSem.isEmpty() || rightSem.isEmpty();
+//                    }
+//                    break;
+//                case BY_COURSE:
+//                    // Get all courses from all semesters for each student
+//                    Set<String> leftCourses = new HashSet<>();
+//                    Set<String> rightCourses = new HashSet<>();
+//
+//                    // Collect all unique courses for left student
+//                    leftStudent.getSemesters().forEach(sem
+//                            -> leftCourses.addAll(leftStudent.getCourses(sem)));
+//
+//                    // Collect all unique courses for right student
+//                    rightStudent.getSemesters().forEach(sem
+//                            -> rightCourses.addAll(rightStudent.getCourses(sem)));
+//
+//                    // Get earliest course from each student (or empty string if no courses)
+//                    String leftCourse = leftCourses.stream().min(String::compareTo).orElse("");
+//                    String rightCourse = rightCourses.stream().min(String::compareTo).orElse("");
+//                    // Compare earliest courses lexicographically
+//                    shouldTakeLeft = leftCourse.compareTo(rightCourse) <= 0;
+//                    break;
             }
 
             // Based on the comparison result, take the appropriate element

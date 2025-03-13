@@ -59,10 +59,12 @@ public class Menu {
         System.out.println("3. Update/Delete Student");
         // Print option 4 for displaying all students
         System.out.println("4. Report");
+        
         // Print option 5 for sorting students
-        System.out.println("5. Sort");
-        // Print option 0 for exiting the program
-        System.out.println("0. Exit");
+//        System.out.println("5. Sort");
+//        // Print option 0 for exiting the program
+
+        System.out.println("0. Exit Program");
         // Debug/Utilities for debugging
         System.out.println("-1. Add test students (Debug)(Can only used once)");
     }
@@ -75,7 +77,7 @@ public class Menu {
             // Prompt for user selection with message
             System.out.print("Please select: ");
             // Get user input within valid range from -1 to 5
-            int selection = InputValidation.getIntInputLimit(-1, 5);
+            int selection = InputValidation.getIntInputLimit(-1, 4);
             // Process user selection using switch statement
             switch (selection) {
                 case 1:
@@ -94,10 +96,12 @@ public class Menu {
                     // Display all students when option 4 is selected
                     report();
                     break;
-                case 5:
-                    // Sort students when option 5 is selected
-                    sort();
-                    break;
+                    
+//                case 5:
+//                    // Sort students when option 5 is selected
+//                    sort();
+//                    break;
+                    
                 case -1:
                     // Hidden option for quickly adding test students
                     quickAddStudent();
@@ -411,6 +415,8 @@ public class Menu {
                 System.out.println("4. Course");
                 // Display option 0: return to main menu
                 System.out.println("0. Back to Menu");
+                // Prompt for user selection with message
+                System.out.print("Please select: ");
 
                 // Get user selection for search criteria (0-4)
                 int selection = InputValidation.getIntInputLimit(0, 4);
@@ -547,23 +553,27 @@ public class Menu {
                     // Option 0: Return to main menu
                     System.out.println("0. Back to Menu.");
 
-                    // Get user's selection (0-2)
-                    int selection = InputValidation.getIntInputLimit(0, 2);
-                    // Process selection with switch statement
-                    switch (selection) {
-                        case 1:
-                            // Call method to update student information
-                            studentUpdate(foundStudent);
-                            // Continue the outer loop after update
-                            break;
-                        case 2:
-                            // Call method to delete student
-                            studentDelete(foundStudent);
-                            // Exit the update/delete menu after deletion
-                            break OUTER;
-                        case 0:
-                            // Return to main menu
-                            break OUTER;
+                    try {
+                        // Get user's selection (0-2)
+                        int selection = InputValidation.getIntInputLimit(0, 2);
+                        // Process selection with switch statement
+                        switch (selection) {
+                            case 1:
+                                // Call method to update student information
+                                studentUpdate(foundStudent);
+                                // Continue the outer loop after update
+                                break;
+                            case 2:
+                                // Call method to delete student
+                                studentDelete(foundStudent);
+                                // Exit the update/delete menu after deletion
+                                break OUTER;
+                            case 0:
+                                // Return to main menu
+                                break OUTER;
+                        }
+                    } catch (Exception e) {
+                        System.err.println("------Error! " + e.getMessage());
                     }
                 }
             }
@@ -589,11 +599,11 @@ public class Menu {
             // Option 1: Update student name
             System.out.println("1. Name");
             // Option 2: Add semesters and courses
-            System.out.println("2. Add Semester/Courses");
+            System.out.println("2. Update Semester/Courses");
             // Option 3: Remove semesters or courses
             System.out.println("3. Remove Semester/Courses");
             // Option 0: Return to main menu
-            System.out.println("0. Exit to Menu");
+            System.out.println("0. Exit");
 
             try {
                 // Get user's selection (0-3)
@@ -643,6 +653,7 @@ public class Menu {
         }
 
         // Continue until all desired removals are complete or user exits
+        OUTER:
         while (true) {
             try {
                 // Display header for current semesters and courses
@@ -674,18 +685,24 @@ public class Menu {
                 // Display options for removal
                 System.out.println("1. Remove entire semester");
                 System.out.println("2. Remove specific courses");
+                System.out.println("0. Abort");
                 // Get user selection (1-2)
-                int selection = InputValidation.getIntInputLimit(1, 2);
+                int selection = InputValidation.getIntInputLimit(0, 2);
 
                 // Process based on user selection
-                if (selection == 1) {
-                    // Option 1: Remove the entire semester and all its courses
-                    student.removeSemester(semester);
-                    // Display success message
-                    System.out.println("Semester removed successfully.");
-                } else {
-                    // Option 2: Remove specific courses from the semester
-                    removeCoursesFromSemester(student, semester);
+                switch (selection) {
+                    case 1:
+                        // Option 1: Remove the entire semester and all its courses
+                        student.removeSemester(semester);
+                        // Display success message
+                        System.out.println("Semester removed successfully.");
+                        break;
+                    case 2:
+                        // Option 2: Remove specific courses from the semester
+                        removeCoursesFromSemester(student, semester);
+                        break;
+                    case 3:
+                        break OUTER;
                 }
 
                 // Check if student has any semesters left after removal
@@ -899,10 +916,6 @@ public class Menu {
             System.out.println("1. Sort by Name");
             // Display option 2: sort by student ID
             System.out.println("2. Sort by ID");
-            // Display option 3: sort by semester
-            System.out.println("3. Sort by Semester");
-            // Display option 4: sort by course
-            System.out.println("4. Sort by Course");
             // Display option 0: return to main menu
             System.out.println("0. Back to Menu");
             // Prompt for user input
@@ -910,7 +923,7 @@ public class Menu {
 
             try {
                 // Get user selection for sort criteria (0-4)
-                int sortOption = InputValidation.getIntInputLimit(0, 4);
+                int sortOption = InputValidation.getIntInputLimit(0, 2);
 
                 // Process selection using switch statement
                 switch (sortOption) {
@@ -921,14 +934,6 @@ public class Menu {
                     case 2:
                         // Sort by student ID
                         dtb.sort(StudentDTB.SortType.BY_ID);
-                        break;
-                    case 3:
-                        // Sort by semester (chronological order)
-                        dtb.sort(StudentDTB.SortType.BY_SEMESTER);
-                        break;
-                    case 4:
-                        // Sort by course name
-                        dtb.sort(StudentDTB.SortType.BY_COURSE);
                         break;
                     case 0:
                         // Return to main menu
